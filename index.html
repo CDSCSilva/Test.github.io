@@ -36,43 +36,20 @@
       border-radius: 8px;
       touch-action: none;
     }
-    .controls { display: flex; gap: 0.5rem; max-width: 800px; margin: 0.75rem auto 1.5rem; }
-    .controls button {
-      flex: 1;
-      padding: 0.75rem;
-      font: inherit;
-      color: #fff;
-      background: transparent;
-      border: 2px solid #fff;
-      border-radius: 8px;
-      touch-action: manipulation;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-    .controls button:active { background: rgba(255, 255, 255, 0.25); }
-    .controls button:focus-visible { outline: 3px solid #ffd54a; outline-offset: 2px; }
   </style>
 </head>
 <body>
   <header>
     <h1>Jump!</h1>
     <nav>
-      <a href="index.html">Início</a>
-      <a href="about.html">Sobre</a>
-      <a href="contact.html">Contactos</a>
     </nav>
   </header>
 
   <main>
     <h2>Jogo de saltos</h2>
-    <p>Chegue à bandeira em cada um dos 3 níveis. Mova-se com as setas ou com A/D, salte com Cima, W ou Espaço e prima R para reiniciar o nível.</p>
+    <p>Chegue à bandeira em cada um dos 20 níveis. Mova-se com as setas ou com A/D, salte com Cima, W ou Espaço e prima R para reiniciar o nível.</p>
     <p id="status" aria-live="polite"></p>
     <canvas id="game" width="640" height="360" aria-label="Jogo de plataformas com saltos"></canvas>
-    <div class="controls">
-      <button type="button" data-key="left" aria-label="Mover para a esquerda">Esquerda</button>
-      <button type="button" data-key="jump" aria-label="Saltar">Saltar</button>
-      <button type="button" data-key="right" aria-label="Mover para a direita">Direita</button>
-    </div>
   </main>
 
   <footer>
@@ -86,23 +63,145 @@
 
       // Rectangles are [x, y, width, height]
       var levels = [
+        // 1. Degraus
         {
           start: [20, 300],
           plats: [[0, 320, 140, 40], [200, 280, 80, 16], [330, 240, 80, 16], [460, 200, 80, 16], [570, 150, 70, 16]],
           hazards: [],
           goal: [600, 110, 16, 40]
         },
+        // 2. Ziguezague
         {
           start: [20, 300],
           plats: [[0, 320, 100, 40], [150, 270, 50, 14], [250, 220, 50, 14], [150, 170, 50, 14], [250, 120, 50, 14], [370, 120, 60, 14], [480, 170, 50, 14], [570, 220, 70, 14]],
           hazards: [],
           goal: [600, 180, 16, 40]
         },
+        // 3. Primeiros espinhos
         {
           start: [20, 300],
           plats: [[0, 320, 120, 40], [170, 290, 110, 14], [330, 250, 110, 14], [490, 210, 150, 14]],
           hazards: [[215, 276, 16, 14], [375, 236, 16, 14]],
           goal: [600, 170, 16, 40]
+        },
+        // 4. Saltos longos
+        {
+          start: [20, 300],
+          plats: [[0, 320, 80, 40], [165, 310, 60, 16], [310, 300, 60, 16], [455, 290, 60, 16], [590, 270, 50, 16]],
+          hazards: [],
+          goal: [600, 230, 16, 40]
+        },
+        // 5. Pedras
+        {
+          start: [20, 300],
+          plats: [[0, 320, 70, 40], [138, 290, 36, 14], [242, 260, 36, 14], [346, 290, 36, 14], [450, 250, 36, 14], [554, 220, 86, 14]],
+          hazards: [],
+          goal: [600, 180, 16, 40]
+        },
+        // 6. Ilhas
+        {
+          start: [20, 300],
+          plats: [[0, 320, 50, 40], [124, 290, 44, 14], [242, 255, 44, 14], [360, 290, 44, 14], [478, 250, 44, 14], [596, 210, 44, 14]],
+          hazards: [[138, 276, 16, 14], [256, 241, 16, 14], [374, 276, 16, 14], [492, 236, 16, 14]],
+          goal: [612, 170, 16, 40]
+        },
+        // 7. Ilhas perigosas
+        {
+          start: [20, 300],
+          plats: [[0, 320, 150, 40], [230, 300, 44, 14], [350, 260, 44, 14], [470, 220, 44, 14], [570, 180, 70, 14]],
+          hazards: [[90, 306, 32, 14], [242, 286, 16, 14], [362, 246, 16, 14], [482, 206, 16, 14]],
+          goal: [604, 140, 16, 40]
+        },
+        // 8. Escadaria
+        {
+          start: [20, 310],
+          plats: [[0, 330, 80, 30], [110, 275, 50, 14], [195, 220, 50, 14], [280, 165, 50, 14], [365, 110, 50, 14], [455, 165, 50, 14], [540, 220, 100, 14]],
+          hazards: [],
+          goal: [600, 180, 16, 40]
+        },
+        // 9. Pilares
+        {
+          start: [20, 290],
+          plats: [[0, 310, 60, 50], [125, 255, 26, 105], [211, 300, 26, 60], [297, 245, 26, 115], [383, 295, 26, 65], [469, 240, 26, 120], [555, 190, 85, 170]],
+          hazards: [],
+          goal: [600, 150, 16, 40]
+        },
+        // 10. Torre em ziguezague
+        {
+          start: [20, 310],
+          plats: [[0, 330, 100, 30], [170, 275, 70, 14], [70, 220, 70, 14], [170, 165, 70, 14], [70, 110, 70, 14], [170, 55, 70, 14], [340, 70, 60, 14], [500, 120, 140, 14]],
+          hazards: [],
+          goal: [600, 80, 16, 40]
+        },
+        // 11. Corredor baixo
+        {
+          start: [20, 300],
+          plats: [[0, 320, 90, 40], [144, 320, 80, 40], [280, 320, 80, 40], [418, 320, 80, 40], [558, 320, 82, 40], [0, 232, 520, 36]],
+          hazards: [],
+          goal: [610, 280, 16, 40]
+        },
+        // 12. Chão de espinhos
+        {
+          start: [20, 300],
+          plats: [[0, 320, 640, 40]],
+          hazards: [[120, 306, 48, 14], [230, 306, 56, 14], [350, 306, 64, 14], [480, 306, 72, 14]],
+          goal: [610, 280, 16, 40]
+        },
+        // 13. Descida
+        {
+          start: [20, 40],
+          plats: [[0, 60, 80, 14], [195, 110, 50, 14], [365, 160, 50, 14], [535, 210, 105, 14]],
+          hazards: [[614, 196, 16, 14]],
+          goal: [580, 170, 16, 40]
+        },
+        // 14. Túnel de espinhos
+        {
+          start: [20, 300],
+          plats: [[0, 320, 640, 40], [0, 236, 560, 14]],
+          hazards: [[130, 306, 32, 14], [240, 306, 36, 14], [340, 306, 40, 14], [450, 306, 44, 14]],
+          goal: [610, 280, 16, 40]
+        },
+        // 15. Salto de fé
+        {
+          start: [20, 70],
+          plats: [[0, 90, 80, 14], [200, 160, 50, 14], [380, 230, 50, 14], [560, 300, 80, 14]],
+          hazards: [[620, 286, 16, 14]],
+          goal: [596, 260, 16, 40]
+        },
+        // 16. Precisão
+        {
+          start: [20, 300],
+          plats: [[0, 320, 60, 40], [170, 315, 24, 14], [304, 310, 24, 14], [438, 305, 24, 14], [572, 300, 68, 14]],
+          hazards: [],
+          goal: [605, 260, 16, 40]
+        },
+        // 17. Pilares altos
+        {
+          start: [20, 290],
+          plats: [[0, 310, 60, 50], [144, 250, 24, 110], [252, 300, 24, 60], [360, 240, 24, 120], [468, 290, 24, 70], [576, 230, 64, 130]],
+          hazards: [],
+          goal: [600, 190, 16, 40]
+        },
+        // 18. Corredor de espinhos
+        {
+          start: [20, 300],
+          plats: [[0, 320, 640, 40]],
+          hazards: [[60, 306, 48, 14], [148, 306, 64, 14], [252, 306, 80, 14], [372, 306, 80, 14], [492, 306, 64, 14]],
+          goal: [610, 280, 16, 40]
+        },
+        // 19. Escalada alta
+        {
+          start: [20, 310],
+          plats: [[0, 330, 70, 30], [100, 260, 44, 14], [190, 190, 44, 14], [280, 120, 44, 14], [370, 50, 44, 14], [510, 120, 50, 14], [600, 190, 40, 14]],
+          hazards: [],
+          goal: [608, 150, 16, 40]
+        },
+        // 20. Desafio final
+        {
+          start: [20, 300],
+          plats: [[0, 320, 200, 40], [304, 300, 30, 14], [438, 265, 30, 14], [572, 230, 68, 14]],
+          hazards: [[46, 306, 48, 14], [124, 306, 64, 14]],
+          goal: [612, 190, 16, 40]
         }
       ];
 
@@ -118,7 +217,7 @@
 
       function updateStatus() {
         statusEl.textContent = won
-          ? 'Terminou todos os níveis com ' + falls + ' quedas. Prima Saltar para jogar de novo.'
+          ? 'Terminou todos os níveis com ' + falls + ' quedas. Prima Espaço para jogar de novo.'
           : 'Nível ' + (lvl + 1) + ' de ' + levels.length + '. Quedas: ' + falls;
       }
 
@@ -169,12 +268,15 @@
 
         ctx.fillStyle = '#ff5a5a';
         L.hazards.forEach(function (h) {
-          ctx.beginPath();
-          ctx.moveTo(h[0], h[1] + h[3]);
-          ctx.lineTo(h[0] + h[2] / 2, h[1]);
-          ctx.lineTo(h[0] + h[2], h[1] + h[3]);
-          ctx.closePath();
-          ctx.fill();
+          var n = Math.max(1, Math.round(h[2] / 16)), w = h[2] / n;
+          for (var i = 0; i < n; i++) {
+            ctx.beginPath();
+            ctx.moveTo(h[0] + i * w, h[1] + h[3]);
+            ctx.lineTo(h[0] + i * w + w / 2, h[1]);
+            ctx.lineTo(h[0] + (i + 1) * w, h[1] + h[3]);
+            ctx.closePath();
+            ctx.fill();
+          }
         });
 
         var g = L.goal;
@@ -228,15 +330,6 @@
       window.addEventListener('keyup', function (e) {
         var k = map[e.code];
         if (k) press(k, false);
-      });
-
-      document.querySelectorAll('.controls button').forEach(function (b) {
-        var k = b.dataset.key;
-        b.addEventListener('pointerdown', function (e) { e.preventDefault(); press(k, true); });
-        ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) {
-          b.addEventListener(ev, function () { press(k, false); });
-        });
-        b.addEventListener('contextmenu', function (e) { e.preventDefault(); });
       });
 
       load(0);
